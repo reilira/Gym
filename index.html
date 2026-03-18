@@ -1,622 +1,922 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="utf-8">
-    <title>Asistencia TDM Ferro</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        :root {
-            --bg: #d4f4d2;
-            --accent: #145c2c;
-            --card: #fff;
-            --btn: #28a745;
-            --btn-hover: #218838;
-            --danger: #ffe6e6;
-        }
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>GymTracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --y:#FEAC27;--dk:#2b3542;
+  --card:#fff;--border:#e2e5ed;--text:#2b3542;--text2:#6b7380;
+  --bg:#f5f6fa;--bg2:#f0f1f5;
+  --danger-bg:#fde8e8;--danger-text:#c0392b;
+  --warn-bg:#fff3cd;--warn-text:#856404;
+  --suc-bg:#d1fae5;--suc-text:#065f46;
+  --info-bg:#dbeafe;--info-text:#1e40af;
+  --purple-bg:#ede9fe;--purple-text:#5b21b6;
+}
+@media(prefers-color-scheme:dark){:root{
+  --card:#1e2430;--border:#3a4050;--text:#e8eaf0;--text2:#8892a4;
+  --bg:#141920;--bg2:#1a2030;
+  --danger-bg:#3d1515;--danger-text:#f87171;
+  --warn-bg:#3d2e05;--warn-text:#fbbf24;
+  --suc-bg:#062318;--suc-text:#34d399;
+  --info-bg:#0d1f40;--info-text:#60a5fa;
+  --purple-bg:#1e1040;--purple-text:#a78bfa;
+}}
+body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;margin:0;color:var(--text)}
+#app{max-width:500px;margin:0 auto;padding:16px;min-height:100vh}
+h1{font-size:22px;font-weight:600;color:var(--text);margin-bottom:4px}
+.sub{font-size:13px;color:var(--text2);margin-bottom:16px}
+.tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:none;border:none;border-bottom:2px solid transparent;padding:10px 13px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;margin-bottom:-1px;transition:color .15s,border-color .15s;font-family:inherit;white-space:nowrap}
+.tab-btn.active{color:var(--y);border-bottom-color:var(--y)}
+.view{display:none}.view.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.card-sm{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.field select,.field input,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.field select:focus,.field input:focus,.field textarea:focus{border-color:var(--y)}
+.btn{padding:9px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;font-family:inherit}
+.btn:hover{background:var(--bg2)}
+.btn-primary{background:var(--y);border-color:var(--y);color:#1b2230}
+.btn-primary:hover{background:#e09918;border-color:#e09918}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:7px}
+.btn-icon{width:32px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:15px;border-radius:7px}
+.btn-danger{border-color:#f5b7b1;color:var(--danger-text);background:var(--danger-bg)}
+.btn-danger:hover{opacity:.85}
+.serie-box{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 6px;text-align:center;position:relative;transition:border-color .2s,background .2s}
+.serie-box.done{border-color:var(--y);background:rgba(254,172,39,.1)}
+.serie-num{font-size:10px;color:var(--text2);margin-bottom:3px}
+.serie-val{font-size:14px;font-weight:600;color:var(--text);line-height:1}
+.serie-sub{font-size:10px;color:var(--text2);margin-top:2px}
+.serie-check{position:absolute;top:5px;right:5px;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .15s}
+.serie-check.done-chk{background:var(--y);border-color:var(--y);color:#1b2230}
+.series-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;margin-bottom:8px}
+.prog-wrap{height:4px;background:var(--bg2);border-radius:4px;overflow:hidden;margin:8px 0}
+.prog-fill{height:100%;background:var(--y);border-radius:4px;transition:width .3s}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.kpi-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.kpi-val{font-size:22px;font-weight:700;color:var(--text);line-height:1}
+.kpi-lbl{font-size:11px;color:var(--text2);margin-top:2px}
+.chip{font-size:11px;padding:3px 8px;border-radius:20px;border:1px solid var(--border);color:var(--text2);background:var(--bg2);margin-right:3px;margin-bottom:3px;display:inline-block}
+.hist-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.hist-item:last-child{border-bottom:none}
+.cfg-input{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
+.cfg-input:focus{border-color:var(--y)}
+.notes-input{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;font-family:inherit;min-height:56px;resize:vertical;outline:none}
+.notes-input:focus{border-color:var(--y)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--dk);color:#fff;padding:11px 22px;border-radius:10px;font-size:13px;font-weight:500;transition:transform .25s;z-index:9999;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;padding:36px 16px;color:var(--text2);font-size:13px;line-height:1.6}
 
-        * {
-            box-sizing: border-box
-        }
+/* Imagen ejercicio */
+.ej-img-wrap{background:var(--bg2);border-radius:8px;overflow:hidden;margin-bottom:10px;display:flex;align-items:center;justify-content:center;height:110px;cursor:pointer;border:1px solid var(--border)}
+.ej-img-wrap svg{max-height:100px;width:auto}
 
-        body {
-            margin: 0;
-            font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
-            background: var(--bg);
-            padding: 20px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+/* Modal imagen */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--card);border-radius:14px;padding:20px;max-width:340px;width:90%;position:relative}
+.modal-close{position:absolute;top:12px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);line-height:1}
+.modal-ej-img{display:flex;align-items:center;justify-content:center;background:var(--bg2);border-radius:10px;padding:16px;margin-bottom:12px;min-height:160px}
+.modal-ej-img svg{max-height:150px;width:auto}
 
-        h1 {
-            text-align: center;
-            color: var(--accent);
-            margin: 0 0 14px;
-            font-size: 1.4rem;
-        }
+/* Constructor de rutinas */
+.ej-lib-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-height:320px;overflow-y:auto;margin-bottom:10px}
+.ej-lib-item{border:1px solid var(--border);border-radius:8px;padding:8px;cursor:pointer;transition:border-color .2s,background .2s;display:flex;align-items:center;gap:8px}
+.ej-lib-item:hover{border-color:var(--y)}
+.ej-lib-item.selected{border-color:var(--y);background:rgba(254,172,39,.08)}
+.ej-lib-thumb{width:40px;height:40px;background:var(--bg2);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.ej-lib-thumb svg{max-width:36px;max-height:36px}
+.ej-lib-name{font-size:12px;font-weight:500;color:var(--text);line-height:1.3}
+.ej-lib-musc{font-size:10px;color:var(--text2);margin-top:1px}
+.ej-sel-item{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)}
+.ej-sel-item:last-child{border-bottom:none}
 
-        .container {
-            max-width: 640px;
-            margin: 0 auto;
-            background: var(--card);
-            padding: 18px;
-            border-radius: 12px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-        }
+.filter-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.fchip{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);color:var(--text2);background:var(--card);cursor:pointer;transition:all .15s}
+.fchip.active{background:var(--y);border-color:var(--y);color:#1b2230;font-weight:600}
 
-        .row {
-            margin-bottom: 16px;
-            text-align: center;
-        }
-
-        label {
-            display: block;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        /* Inputs y selects */
-        .controls {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        input[type="text"],
-        input[type="date"],
-        select {
-            padding: 10px;
-            border: 1px solid #cfcfcf;
-            border-radius: 8px;
-            font-size: 1rem;
-            width: 320px;
-            max-width: 100%;
-            background: #fff;
-        }
-
-        /* Expand calendar picker indicator to full input area (WebKit browsers) */
-        .date-wrap {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-            max-width: 320px;
-        }
-
-        input[type="date"] {
-            width: 100%;
-            appearance: textfield;
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-            color: transparent;
-            background: transparent;
-            opacity: 0;
-        }
-
-        .date-alert {
-            border-color: red;
-            background: var(--danger);
-        }
-
-        /* Lista de alumnos */
-        #lista-asistencia {
-            margin-top: 6px;
-        }
-
-        .alumno {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            justify-content: space-between;
-            padding: 8px 6px;
-            border-bottom: 1px solid #eee;
-            flex-wrap: wrap;
-        }
-
-        .alumno-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1 1 auto;
-            min-width: 0;
-        }
-
-        .check {
-            transform: scale(1.2);
-            cursor: pointer;
-            flex: 0 0 auto;
-        }
-
-        .alumno label {
-            font-weight: 600;
-            color: var(--accent);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Botones */
-        .actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-
-        button {
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 0;
-            background: var(--btn);
-            color: #fff;
-            font-weight: 700;
-            cursor: pointer;
-            min-width: 140px;
-        }
-
-        button.secondary {
-            background: #007bff;
-        }
-
-        button:hover {
-            background: var(--btn-hover);
-        }
-
-        :root {
-            --bg: #d4f4d2;
-            --accent: #145c2c;
-            --card: #fff;
-            --btn: #28a745;
-            --btn-hover: #218838;
-            --danger: #ffe6e6;
-            --text: #0b2b18;
-        }
-
-        /* modo oscuro */
-        .dark {
-            --bg: #0f1720;
-            --accent: #7dd3c8;
-            --card: #0b1320;
-            --btn: #0ea5a4;
-            --btn-hover: #0b8b88;
-            --danger: #3b1a1a;
-            --text: #e6f7f3;
-        }
-
-        .centrado {
-            text-align: center;
-        }
-
-
-
-        /* Responsive */
-        @media (max-width:600px) {
-            .container {
-                padding: 14px;
-                border-radius: 10px;
-            }
-
-            h1 {
-                font-size: 1.2rem;
-            }
-
-            .controls {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            input[type="text"],
-            input[type="date"],
-            select {
-                width: 100%;
-            }
-
-            .alumno {
-                flex-direction: row;
-                gap: 8px;
-                align-items: center;
-            }
-
-            .alumno label {
-                font-size: 0.95rem;
-            }
-
-            button {
-                width: 100%;
-                min-width: unset;
-            }
-
-            .actions {
-                gap: 8px;
-            }
-        }
-    </style>
+.rutinas-custom-list .rut-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.rutinas-custom-list .rut-item:last-child{border-bottom:none}
+</style>
 </head>
-
 <body>
-    <div>
-        </br></br>
+<div id="app">
+  <h1>💪 GymTracker</h1>
+  <p class="sub">Registrá tu entrenamiento, série por série</p>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('entrenar')">Entrenar</button>
+    <button class="tab-btn" onclick="switchTab('historial')">Historial</button>
+    <button class="tab-btn" onclick="switchTab('progreso')">Progreso</button>
+    <button class="tab-btn" onclick="switchTab('misrutinas')">Mis Rutinas</button>
+    <button class="tab-btn" onclick="switchTab('biblioteca')">Biblioteca</button>
+  </div>
+
+  <!-- ENTRENAR -->
+  <div id="view-entrenar" class="view active">
+    <div class="card">
+      <div class="field">
+        <label>Día</label>
+        <select id="sel-dia" onchange="cambiarDia()">
+          <option>Lunes</option><option>Martes</option><option>Miércoles</option>
+          <option>Jueves</option><option>Viernes</option><option>Sábado</option><option>Domingo</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Rutina</label>
+        <select id="sel-rutina" onchange="cargarRutina()"></select>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div id="rutina-desc" style="font-size:12px;color:var(--text2)"></div>
+        <button class="btn btn-sm btn-primary" onclick="guardarSesion()">💾 Guardar sesión</button>
+      </div>
     </div>
-    <h1>Asistencia Ferro TDM</h1>
-    <button id="toggleDark" aria-pressed="false"
-        style="position:absolute; top:12px; right:0px; padding:6px 10px; border-radius:8px;">
-        🌙
-    </button>
-
-
-    <div class="container">
-        <div class="row fecha">
-            <label for="fecha">📅 Seleccionar fecha</label>
-            <div class="controls">
-                <div class="date-wrap">
-                    <input type="date" id="fecha" aria-label="fecha" class="centrado">
-                </div>
-            </div>
-        </div>
-
-        <div class="row profesor">
-            <label for="profesor">👨‍🏫 Seleccionar profe</label>
-            <div class="controls">
-                <select id="profesor" aria-label="profesor" class="centrado">
-                    <option value="">-- Elegir --</option>
-                    <option>Agustín</option>
-                    <option>Eros</option>
-                    <option>Francisco</option>
-                    <option>Irina</option>
-                    <option>Lucio</option>
-                    <option>Reinaldo</option>
-                    <option>Pablo</option>
-                    <option>Fabián</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="row grupo">
-            <label for="grupo">📘 Grupo de entrenamiento </label>
-            <div class="controls">
-                <select id="grupo" onchange="cargarAlumnos()" aria-label="grupo" class="centrado">
-                    <option value="">-- Elegir --</option>
-                    <option value="A">Grilla A</option>
-                    <option value="B">Grilla B</option>
-                    <option value="C">Grilla C</option>
-                    <option value="Escuelita">Grilla Escuelita</option>
-                </select>
-            </div>
-        </div>
-
-        <h2 id="grupo-titulo" style="text-align:center;color:var(--accent);margin:6px 0 8px;font-size:1rem;"></h2>
-
-        <div id="lista-asistencia" aria-live="polite"></div>
-
-        <div id="contenedor-alumno" style="display: none;">
-            <div>
-                <div class="controls">
-                    <input type="text" id="nuevoNombre" placeholder="Nombre del alumno nuevo" aria-label="nuevo alumno"
-                        class="centrado">
-                </div>
-            </div>
-            <div class="centrado">
-                <br>
-                <button type="button" onclick="agregarAlumno()">➕ Agregar alumno</button>
-            </div>
-        </div>
-
-        <div style="margin-top:14px;">
-            <div class="actions" role="group" aria-label="acciones">                
-                <!-- <button type="button" onclick="generarPDF()">📄 Generar PDF</button>-->
-                <!--<button type="button" onclick="copiarAlPortapapeles()">📋 Copiar al portapapeles </button>-->
-                <button onclick="compartirPorWhatsApp()"
-                    style="background-color:#25D366;color:white;padding:10px 16px;border:none;border-radius:6px;font-size:14px;cursor:pointer;">
-                    📤 Enviar por WhatsApp </button>
-                <button type="button" class="secondary" onclick="limpiar()">🧹 Limpiar</button>
-            </div>
-        </div>
+    <div id="kpi-sesion" style="display:none">
+      <div class="kpi-row">
+        <div class="kpi-box"><div class="kpi-val" id="k-series">0</div><div class="kpi-lbl">Series ✓</div></div>
+        <div class="kpi-box"><div class="kpi-val" id="k-reps">0</div><div class="kpi-lbl">Reps total</div></div>
+        <div class="kpi-box"><div class="kpi-val" id="k-vol">0</div><div class="kpi-lbl">Volumen kg</div></div>
+      </div>
     </div>
+    <div id="ejercicios-container"></div>
+  </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script>
-        function compartirPorWhatsApp() {
-            const registro = construirRegistro();
-            const texto = formatearTextoParaCopiar(registro);
-            const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
-            window.open(url, '_blank');
-        }
+  <!-- HISTORIAL -->
+  <div id="view-historial" class="view">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <span style="font-size:14px;font-weight:600;color:var(--text)">Sesiones guardadas</span>
+      <button class="btn btn-sm btn-danger" onclick="borrarTodoHistorial()">Borrar todo</button>
+    </div>
+    <div id="historial-list"></div>
+  </div>
 
-        const grupos = {
-            A: ["Facundo Antman", "Facundo Arnaudo", "Francisco Banegas", "Tomas Cabrera","Lautaro Digestani", "Valentin Fernandez", "Ignacio Jaimovich", "Santiago Joszpe","Lucio Tomasello", "Reinaldo Lira", "Joaquin Marini", "Santiago Marini","Franco Martino", "Natali Mujica", "Vicentino Rack", "Franco Spinelli", "Eros Turchin","Joaquin Da Rosa"],
-            B: ["Mariano Grynszpan", "José Luis Paoloni", "Julián Zabaljauregui", "Agustin Ávila", "Vitaly Banzaraktsaev", "Dmitri Zimin", "Andrés Lomovasky", "Andrés Molteno", "Kenji Arakaki", "Federico Messina", "Martín Ibarra", "Genghis Capella", "Geronimo Alejandro", "Horacio Golstein", "Virginia Gómez", "Luca Rostcovsky", "Bautista Carballa", "Armando Centofanti","Raúl Litvak","Carlos Rodriguez"],
-            C: ["Martin Ibarra", "Azul Contrucchi", "Hernan Ruiz", "Nancy Rabazano", "Kenji Arakaki", "Sebastian Andre", "Agustin Gil Sarmiento", "Martin Kondratiuk", "Juan Bianchi", "Arturo Romero", "Sara Jin", "Federico Rufino", "Virginia Gomez", "Sergio Ontiveros", "Santiago Gervasini","Fernando Verne","Brian Bellota","Brabara Fonzalida"],
-            Escuelita: [ "Dasso Agustin","Leporace Manuel","Galván Joaquin","Garcia Joaquin","Garcia Luis","Berracer Uriel","Palacios Santiago","Velasco Salvador","Rostcovsky Matias","Rostcovsky Luca","Magistris Facundo","Suk Manuel","Dellarroquelle Belen","Dellarroquelle Victoria","Madias Benjamin","Boneda Julian","Rojas Zalba Lucas","Rojas Zalba Daniel","Mastromarino Gianluca","Lopez Raya Santiago","Chen Eliseo","Lin Antonio","Yu Lucas","Galvan Joaco","Ibarra Teo","Perez Romero Joan","Cabral Bruno","Garralda Federico","Toptzian Tomas","Gutierrez Ciro","Andina Francisco","Pruenal Tomas","David Xu"]
-        };
+  <!-- PROGRESO -->
+  <div id="view-progreso" class="view">
+    <div class="card" style="margin-bottom:12px">
+      <div class="field" style="margin-bottom:0">
+        <label>Ejercicio</label>
+        <select id="sel-ej-prog" onchange="mostrarProgreso()"></select>
+      </div>
+    </div>
+    <div id="progreso-content"></div>
+  </div>
 
-        function crearId(nombre) {
-            return nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-        }
+  <!-- MIS RUTINAS -->
+  <div id="view-misrutinas" class="view">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <span style="font-size:14px;font-weight:600;color:var(--text)">Mis rutinas personalizadas</span>
+      <button class="btn btn-sm btn-primary" onclick="abrirConstructor()">+ Nueva rutina</button>
+    </div>
+    <div id="mis-rutinas-list"></div>
 
-        function cargarAlumnos() {
-            const grupoSel = document.getElementById("grupo").value;
-            const lista = document.getElementById("lista-asistencia");
-            const titulo = document.getElementById("grupo-titulo");
-            lista.innerHTML = "";
-            titulo.textContent = grupoSel ? `Alumnos de Grilla ${grupoSel}` : "";
-            const contenedorAlumno = document.getElementById("contenedor-alumno");
+    <!-- Constructor -->
+    <div id="constructor" style="display:none">
+      <div class="card">
+        <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px" id="constructor-titulo">Nueva rutina</div>
+        <div class="field">
+          <label>Nombre de la rutina</label>
+          <input type="text" id="inp-rut-nombre" placeholder="Ej: Upper Body — Pesado">
+        </div>
+        <div class="field">
+          <label>Descripción</label>
+          <input type="text" id="inp-rut-desc" placeholder="Ej: Fuerza máxima 3-5 reps">
+        </div>
 
-            // Mostrar u ocultar el input y botón según selección
-            contenedorAlumno.style.display = grupoSel ? "block" : "none";
+        <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Filtrar por músculo</div>
+        <div class="filter-chips" id="filter-chips-constructor"></div>
 
-            if (!grupoSel || !grupos[grupoSel]) return;
+        <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Seleccionar ejercicios</div>
+        <div class="ej-lib-grid" id="ej-lib-grid"></div>
 
-            const alumnos = [...grupos[grupoSel]].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+        <div id="ej-seleccionados-wrap" style="display:none;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Ejercicios seleccionados</div>
+          <div id="ej-seleccionados-list"></div>
+        </div>
 
-            // 🔘 Crear botón "Marcar todos"
-            const botonMarcar = document.createElement("button");
-            botonMarcar.textContent = "Marcar todos";
-            botonMarcar.className = "btn-marcar-todos";
-            botonMarcar.onclick = () => {
-                const checks = lista.querySelectorAll(".check");
-                checks.forEach(check => check.checked = true);
-            };
-            lista.appendChild(botonMarcar);
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="guardarRutinaCustom()">Guardar rutina</button>
+          <button class="btn" onclick="cerrarConstructor()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-            alumnos.forEach(nombre => {
-                const id = crearId(nombre);
-                const div = document.createElement("div");
-                div.className = "alumno";
+  <!-- BIBLIOTECA -->
+  <div id="view-biblioteca" class="view">
+    <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:10px">Biblioteca de ejercicios</div>
+    <div class="filter-chips" id="filter-chips-bib"></div>
+    <div id="bib-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"></div>
+  </div>
+</div>
 
-                const left = document.createElement("div");
-                left.className = "alumno-left";
+<!-- Modal imagen ejercicio -->
+<div class="modal-overlay" id="modal-ej" onclick="cerrarModal(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="document.getElementById('modal-ej').classList.remove('open')">✕</button>
+    <div class="modal-ej-img" id="modal-ej-img"></div>
+    <div style="font-size:16px;font-weight:600;color:var(--text)" id="modal-ej-nombre"></div>
+    <div style="font-size:13px;color:var(--text2);margin-top:3px" id="modal-ej-musc"></div>
+    <div style="font-size:13px;color:var(--text);margin-top:10px;line-height:1.6" id="modal-ej-tip"></div>
+  </div>
+</div>
 
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.id = id;
-                checkbox.className = "check";
+<div class="toast" id="toast"></div>
 
-                const label = document.createElement("label");
-                label.setAttribute("for", id);
-                label.textContent = nombre;
-                label.title = nombre;
+<script>
+// ═══════════════════════════════════════════════════════
+// BIBLIOTECA DE EJERCICIOS CON ILUSTRACIONES SVG
+// ═══════════════════════════════════════════════════════
+const EJERCICIOS_LIB = [
+  // PECHO
+  {id:"press_banca",nombre:"Press de banca",musculo:"Pecho",grupo:"Pecho",series:4,reps:10,peso:60,
+   tip:"Bajá la barra a la altura del pecho, codos a 45°. Empujá explosivo, bajá controlado.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="20" y="38" width="40" height="8" rx="3" fill="#FEAC27"/>
+    <rect x="5" y="38" width="16" height="4" rx="2" fill="#2b3542"/>
+    <rect x="59" y="38" width="16" height="4" rx="2" fill="#2b3542"/>
+    <ellipse cx="40" cy="30" rx="8" ry="9" fill="#FEAC27"/>
+    <path d="M32 34 Q26 42 28 50 L34 50 Q35 44 40 43 Q45 44 46 50 L52 50 Q54 42 48 34" fill="#2b3542"/>
+    <line x1="40" y1="42" x2="40" y2="38" stroke="#FEAC27" stroke-width="2"/>
+    <path d="M28 42 Q22 38 24 32" stroke="#FEAC27" stroke-width="1.5" fill="none"/>
+    <path d="M52 42 Q58 38 56 32" stroke="#FEAC27" stroke-width="1.5" fill="none"/>
+   </svg>`},
+  {id:"aperturas",nombre:"Aperturas planas",musculo:"Pecho",grupo:"Pecho",series:3,reps:15,peso:14,
+   tip:"Brazos extendidos con leve flexión de codo. Abrí amplio y cerrá contrayendo el pecho.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="15" y="38" width="50" height="5" rx="2.5" fill="#2b3542"/>
+    <circle cx="12" cy="40" r="5" fill="#FEAC27"/>
+    <circle cx="68" cy="40" r="5" fill="#FEAC27"/>
+    <ellipse cx="40" cy="30" rx="8" ry="9" fill="#FEAC27"/>
+    <path d="M32 35 Q30 40 30 44 Q30 50 40 50 Q50 50 50 44 Q50 40 48 35" fill="#2b3542"/>
+    <path d="M15 38 Q22 32 30 36" stroke="#FEAC27" stroke-width="1.5" fill="none"/>
+    <path d="M65 38 Q58 32 50 36" stroke="#FEAC27" stroke-width="1.5" fill="none"/>
+   </svg>`},
+  {id:"press_inclinado",nombre:"Press inclinado",musculo:"Pecho sup.",grupo:"Pecho",series:3,reps:12,peso:22,
+   tip:"Banco a 30-45°. Trabajá la parte superior del pecho. No arquees la espalda.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="15" y="30" width="42" height="7" rx="3" fill="#FEAC27" transform="rotate(-20 36 34)"/>
+    <rect x="5" y="30" width="12" height="4" rx="2" fill="#2b3542" transform="rotate(-20 11 32)"/>
+    <rect x="57" y="22" width="12" height="4" rx="2" fill="#2b3542" transform="rotate(-20 63 24)"/>
+    <ellipse cx="36" cy="22" rx="7" ry="8" fill="#FEAC27" transform="rotate(-20 36 22)"/>
+    <path d="M30 27 Q25 35 30 44 Q35 48 36 48 Q37 48 42 44 Q47 35 42 27" fill="#2b3542" transform="rotate(-20 36 37)"/>
+   </svg>`},
+  // ESPALDA
+  {id:"dominadas",nombre:"Dominadas",musculo:"Dorsal ancho",grupo:"Espalda",series:4,reps:8,peso:0,
+   tip:"Agarre prono, ancho. Sacá el pecho hacia la barra. Bajá completamente entre reps.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="10" width="60" height="6" rx="3" fill="#2b3542"/>
+    <circle cx="25" cy="13" r="4" fill="#FEAC27"/>
+    <circle cx="55" cy="13" r="4" fill="#FEAC27"/>
+    <path d="M25 17 Q22 24 28 28" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <path d="M55 17 Q58 24 52 28" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <ellipse cx="40" cy="32" rx="8" ry="9" fill="#FEAC27"/>
+    <path d="M32 37 Q28 45 32 54 L38 54 Q38 46 40 45 Q42 46 42 54 L48 54 Q52 45 48 37" fill="#2b3542"/>
+    <path d="M32 37 Q28 30 28 28" stroke="#2b3542" stroke-width="1.5" fill="none"/>
+    <path d="M48 37 Q52 30 52 28" stroke="#2b3542" stroke-width="1.5" fill="none"/>
+   </svg>`},
+  {id:"remo_barra",nombre:"Remo con barra",musculo:"Espalda media",grupo:"Espalda",series:4,reps:10,peso:50,
+   tip:"Torso a 45°, espalda recta. Llevá los codos hacia atrás, apretá omóplatos al subir.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="50" width="60" height="5" rx="2.5" fill="#FEAC27"/>
+    <rect x="8" y="48" width="8" height="9" rx="2" fill="#2b3542"/>
+    <rect x="64" y="48" width="8" height="9" rx="2" fill="#2b3542"/>
+    <ellipse cx="28" cy="28" rx="7" ry="8" fill="#FEAC27"/>
+    <path d="M22 33 Q18 38 18 44 Q18 50 20 52" stroke="#2b3542" stroke-width="1.5" fill="none"/>
+    <path d="M22 33 Q28 36 34 36 Q40 36 46 36 Q50 34 52 32" fill="none" stroke="#FEAC27" stroke-width="2"/>
+    <path d="M52 32 Q56 30 58 32 Q60 35 58 44 Q57 49 55 52" stroke="#2b3542" stroke-width="1.5" fill="none"/>
+    <path d="M40 36 Q40 42 40 50" stroke="#FEAC27" stroke-width="1.5" fill="none"/>
+   </svg>`},
+  {id:"jalon",nombre:"Jalón al pecho",musculo:"Dorsal ancho",grupo:"Espalda",series:3,reps:12,peso:45,
+   tip:"Agarre ancho, llevá la barra al pecho. No te balancees. Controlá la bajada.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="8" width="70" height="5" rx="2.5" fill="#2b3542"/>
+    <line x1="40" y1="13" x2="40" y2="22" stroke="#2b3542" stroke-width="2"/>
+    <rect x="22" y="22" width="36" height="5" rx="2.5" fill="#FEAC27"/>
+    <circle cx="22" cy="24" r="3" fill="#2b3542"/>
+    <circle cx="58" cy="24" r="3" fill="#2b3542"/>
+    <path d="M22 24 Q18 30 26 34" stroke="#FEAC27" stroke-width="1.5" fill="none"/>
+    <path d="M58 24 Q62 30 54 34" stroke="#FEAC27" stroke-width="1.5" fill="none"/>
+    <ellipse cx="40" cy="40" rx="7" ry="8" fill="#FEAC27"/>
+    <path d="M33 45 Q30 52 32 60 L38 60 Q38 54 40 53 Q42 54 42 60 L48 60 Q50 52 47 45" fill="#2b3542"/>
+   </svg>`},
+  // BICEPS
+  {id:"curl_biceps",nombre:"Curl de bíceps",musculo:"Bíceps",grupo:"Bíceps",series:3,reps:12,peso:25,
+   tip:"Codos pegados al cuerpo, sólo mové el antebrazo. Apretá en la cima del movimiento.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="40" cy="20" rx="7" ry="8" fill="#FEAC27"/>
+    <path d="M33 25 Q30 32 32 40 L38 40 Q38 34 40 33 Q42 34 42 40 L48 40 Q50 32 47 25" fill="#2b3542"/>
+    <path d="M32 40 Q28 44 26 50 Q25 55 28 57" stroke="#2b3542" stroke-width="2" fill="none"/>
+    <path d="M28 57 Q26 60 30 62 Q34 58 36 52 Q38 46 38 40" fill="none" stroke="#FEAC27" stroke-width="1.5"/>
+    <rect x="25" y="60" width="12" height="5" rx="2.5" fill="#FEAC27"/>
+    <rect x="22" y="58" width="5" height="9" rx="2" fill="#2b3542"/>
+    <path d="M34 62 Q38 60 40 58" stroke="#2b3542" stroke-width="1" fill="none"/>
+   </svg>`},
+  {id:"curl_martillo",nombre:"Curl martillo",musculo:"Braquial",grupo:"Bíceps",series:3,reps:12,peso:14,
+   tip:"Agarre neutro (como un martillo). Trabaja braquial y braquiorradial además del bíceps.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="40" cy="20" rx="7" ry="8" fill="#FEAC27"/>
+    <path d="M33 25 Q30 32 32 40 L38 40 Q38 34 40 33 Q42 34 42 40 L48 40 Q50 32 47 25" fill="#2b3542"/>
+    <path d="M38 40 Q36 48 34 55 Q33 60 35 62" stroke="#2b3542" stroke-width="2" fill="none"/>
+    <rect x="30" y="60" width="18" height="5" rx="2.5" fill="#FEAC27"/>
+    <rect x="44" y="56" width="5" height="12" rx="2" fill="#2b3542"/>
+   </svg>`},
+  // TRICEPS
+  {id:"press_frances",nombre:"Press francés",musculo:"Tríceps",grupo:"Tríceps",series:3,reps:12,peso:20,
+   tip:"Acostado, baja la barra a la frente doblando solo los codos. Mantené codos fijos.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="20" y="20" width="40" height="5" rx="2.5" fill="#FEAC27"/>
+    <rect x="8" y="20" width="13" height="4" rx="2" fill="#2b3542"/>
+    <rect x="59" y="20" width="13" height="4" rx="2" fill="#2b3542"/>
+    <ellipse cx="40" cy="40" rx="7" ry="8" fill="#FEAC27"/>
+    <path d="M33 45 Q30 52 32 60 L38 60 Q38 53 40 52 Q42 53 42 60 L48 60 Q50 52 47 45" fill="#2b3542"/>
+    <path d="M33 42 Q30 34 25 25" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <path d="M47 42 Q50 34 55 25" stroke="#FEAC27" stroke-width="2" fill="none"/>
+   </svg>`},
+  {id:"fondos",nombre:"Fondos en paralelas",musculo:"Tríceps",grupo:"Tríceps",series:3,reps:12,peso:0,
+   tip:"Bajá hasta que los codos lleguen a 90°. Inclinate levemente adelante para más pecho.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="28" width="12" height="35" rx="4" fill="#2b3542"/>
+    <rect x="58" y="28" width="12" height="35" rx="4" fill="#2b3542"/>
+    <rect x="8" y="28" width="16" height="5" rx="2.5" fill="#FEAC27"/>
+    <rect x="56" y="28" width="16" height="5" rx="2.5" fill="#FEAC27"/>
+    <ellipse cx="40" cy="20" rx="7" ry="8" fill="#FEAC27"/>
+    <path d="M33 25 Q30 30 30 35 Q30 40 33 40" fill="none" stroke="#2b3542" stroke-width="2"/>
+    <path d="M47 25 Q50 30 50 35 Q50 40 47 40" fill="none" stroke="#2b3542" stroke-width="2"/>
+    <path d="M33 40 Q33 44 35 48 Q37 52 40 52 Q43 52 45 48 Q47 44 47 40" fill="#2b3542"/>
+    <path d="M24 31 Q30 34 33 40" stroke="#FEAC27" stroke-width="1.5" fill="none"/>
+    <path d="M56 31 Q50 34 47 40" stroke="#FEAC27" stroke-width="1.5" fill="none"/>
+   </svg>`},
+  {id:"ext_triceps",nombre:"Extensiones tríceps polea",musculo:"Tríceps",grupo:"Tríceps",series:3,reps:15,peso:18,
+   tip:"Codos fijos a los costados. Solo extendé los antebrazos hacia abajo. Contractura al final.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="34" y="5" width="12" height="22" rx="4" fill="#2b3542"/>
+    <rect x="30" y="24" width="20" height="5" rx="2.5" fill="#FEAC27"/>
+    <ellipse cx="40" cy="40" rx="7" ry="8" fill="#FEAC27"/>
+    <path d="M33 45 Q30 48 28 53" stroke="#2b3542" stroke-width="2" fill="none"/>
+    <path d="M47 45 Q50 48 52 53" stroke="#2b3542" stroke-width="2" fill="none"/>
+    <path d="M28 53 Q26 60 30 65" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <path d="M52 53 Q54 60 50 65" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <rect x="26" y="63" width="8" height="5" rx="2" fill="#2b3542"/>
+    <rect x="46" y="63" width="8" height="5" rx="2" fill="#2b3542"/>
+   </svg>`},
+  // HOMBROS
+  {id:"press_militar",nombre:"Press militar",musculo:"Deltoides ant.",grupo:"Hombros",series:4,reps:10,peso:40,
+   tip:"De pie o sentado. Empujá la barra sobre la cabeza. No arquees la zona lumbar.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="18" y="14" width="44" height="5" rx="2.5" fill="#FEAC27"/>
+    <rect x="8" y="14" width="11" height="4" rx="2" fill="#2b3542"/>
+    <rect x="61" y="14" width="11" height="4" rx="2" fill="#2b3542"/>
+    <ellipse cx="40" cy="32" rx="7" ry="8" fill="#FEAC27"/>
+    <path d="M33 37 Q30 44 32 52 L38 52 Q38 46 40 45 Q42 46 42 52 L48 52 Q50 44 47 37" fill="#2b3542"/>
+    <path d="M33 37 Q28 28 22 18" stroke="#2b3542" stroke-width="2" fill="none"/>
+    <path d="M47 37 Q52 28 58 18" stroke="#2b3542" stroke-width="2" fill="none"/>
+   </svg>`},
+  {id:"elevaciones_lat",nombre:"Elevaciones laterales",musculo:"Deltoides medio",grupo:"Hombros",series:4,reps:15,peso:10,
+   tip:"Brazos casi extendidos. Subí hasta la altura del hombro. No uses impulso del torso.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="40" cy="28" rx="7" ry="8" fill="#FEAC27"/>
+    <path d="M33 33 Q30 40 32 48 L38 48 Q38 42 40 41 Q42 42 42 48 L48 48 Q50 40 47 33" fill="#2b3542"/>
+    <path d="M33 36 Q20 34 10 36" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <path d="M47 36 Q60 34 70 36" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <circle cx="10" cy="36" r="4" fill="#2b3542"/>
+    <circle cx="70" cy="36" r="4" fill="#2b3542"/>
+   </svg>`},
+  {id:"encogimientos",nombre:"Encogimientos",musculo:"Trapecio",grupo:"Hombros",series:4,reps:15,peso:30,
+   tip:"Subí los hombros hacia las orejas lo más alto posible. Mantén 1 segundo arriba.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="40" cy="22" rx="7" ry="8" fill="#FEAC27"/>
+    <path d="M33 27 Q26 30 26 36 Q26 42 32 44 L38 44 Q38 38 40 37 Q42 38 42 44 L48 44 Q54 42 54 36 Q54 30 47 27" fill="#2b3542"/>
+    <path d="M26 36 Q20 30 18 22" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <path d="M54 36 Q60 30 62 22" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <rect x="14" y="20" width="8" height="5" rx="2" fill="#2b3542"/>
+    <rect x="58" y="20" width="8" height="5" rx="2" fill="#2b3542"/>
+   </svg>`},
+  // PIERNAS
+  {id:"sentadilla",nombre:"Sentadilla con barra",musculo:"Cuádriceps",grupo:"Piernas",series:4,reps:10,peso:80,
+   tip:"Pies al ancho de hombros. Bajá hasta que los muslos queden paralelos. Rodillas en línea con pies.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="14" y="20" width="52" height="5" rx="2.5" fill="#FEAC27"/>
+    <rect x="8" y="20" width="8" height="4" rx="2" fill="#2b3542"/>
+    <rect x="64" y="20" width="8" height="4" rx="2" fill="#2b3542"/>
+    <ellipse cx="40" cy="14" rx="6" ry="7" fill="#FEAC27"/>
+    <path d="M34 19 Q30 22 30 25 Q30 30 32 30 L38 30 Q38 26 40 25 Q42 26 42 30 L48 30 Q50 30 50 25 Q50 22 46 19" fill="#2b3542"/>
+    <path d="M32 30 Q26 38 24 48 Q23 54 26 58" stroke="#2b3542" stroke-width="2.5" fill="none"/>
+    <path d="M48 30 Q54 38 56 48 Q57 54 54 58" stroke="#2b3542" stroke-width="2.5" fill="none"/>
+    <path d="M26 58 Q28 64 32 65" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <path d="M54 58 Q52 64 48 65" stroke="#FEAC27" stroke-width="2" fill="none"/>
+   </svg>`},
+  {id:"hip_thrust",nombre:"Hip thrust",musculo:"Glúteos",grupo:"Piernas",series:4,reps:12,peso:60,
+   tip:"Apoyá la zona alta de la espalda en un banco. Empujá las caderas hacia arriba, apretando glúteos.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="44" width="20" height="8" rx="3" fill="#2b3542"/>
+    <ellipse cx="22" cy="32" rx="6" ry="7" fill="#FEAC27"/>
+    <path d="M16 37 Q12 40 12 44" stroke="#2b3542" stroke-width="2" fill="none"/>
+    <path d="M28 37 Q36 36 46 34 Q52 32 56 30" stroke="#2b3542" stroke-width="2.5" fill="none"/>
+    <path d="M56 30 Q62 36 60 44 Q58 50 52 54" stroke="#2b3542" stroke-width="2" fill="none"/>
+    <path d="M52 54 Q46 58 44 62" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <rect x="44" y="26" width="28" height="6" rx="3" fill="#FEAC27"/>
+    <rect x="40" y="25" width="6" height="8" rx="2" fill="#2b3542"/>
+    <rect x="68" y="25" width="6" height="8" rx="2" fill="#2b3542"/>
+   </svg>`},
+  {id:"curl_isquio",nombre:"Curl isquiotibiales",musculo:"Isquios",grupo:"Piernas",series:3,reps:12,peso:30,
+   tip:"Acostado boca abajo. Doblá las rodillas lentamente. Controlá la bajada en 3-4 segundos.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="35" width="50" height="8" rx="3" fill="#2b3542"/>
+    <ellipse cx="18" cy="28" rx="6" ry="7" fill="#FEAC27"/>
+    <path d="M12 33 Q10 36 12 43" stroke="#2b3542" stroke-width="2" fill="none"/>
+    <path d="M24 33 Q28 34 34 38 Q44 42 52 42" stroke="#2b3542" stroke-width="2.5" fill="none"/>
+    <path d="M52 42 Q58 42 62 38 Q66 34 64 28" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <circle cx="64" cy="26" r="5" fill="#2b3542"/>
+   </svg>`},
+  {id:"pantorrillas",nombre:"Pantorrillas de pie",musculo:"Gemelos",grupo:"Piernas",series:4,reps:20,peso:40,
+   tip:"Subí en punta de pies lo máximo posible. Bajá lento para mayor recorrido y estiramiento.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="14" y="20" width="52" height="5" rx="2.5" fill="#FEAC27"/>
+    <rect x="8" y="20" width="8" height="4" rx="2" fill="#2b3542"/>
+    <rect x="64" y="20" width="8" height="4" rx="2" fill="#2b3542"/>
+    <ellipse cx="40" cy="14" rx="6" ry="7" fill="#FEAC27"/>
+    <path d="M34 19 Q30 22 30 25 L32 42 Q34 46 40 46 Q46 46 48 42 L50 25 Q50 22 46 19" fill="#2b3542"/>
+    <path d="M34 44 Q30 50 28 58 Q28 64 32 65" stroke="#2b3542" stroke-width="2" fill="none"/>
+    <path d="M46 44 Q50 50 52 58 Q52 64 48 65" stroke="#2b3542" stroke-width="2" fill="none"/>
+    <path d="M28 64 Q32 68 38 67" stroke="#FEAC27" stroke-width="2.5" fill="none"/>
+    <path d="M52 64 Q48 68 42 67" stroke="#FEAC27" stroke-width="2.5" fill="none"/>
+   </svg>`},
+  // CORE
+  {id:"plancha",nombre:"Plancha frontal",musculo:"Core",grupo:"Core",series:3,reps:45,peso:0,
+   tip:"Cuerpo recto de cabeza a talones. No eleves ni hundas las caderas. Contraé el abdomen.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="16" cy="30" rx="6" ry="7" fill="#FEAC27"/>
+    <path d="M10 35 Q8 40 8 46 Q8 52 12 53" stroke="#2b3542" stroke-width="2.5" fill="none"/>
+    <path d="M22 35 Q30 36 42 36 Q56 36 66 38" stroke="#2b3542" stroke-width="3" fill="none"/>
+    <path d="M66 38 Q72 40 72 46 Q72 52 68 53" stroke="#2b3542" stroke-width="2.5" fill="none"/>
+    <rect x="8" y="52" width="8" height="10" rx="3" fill="#FEAC27"/>
+    <rect x="64" y="52" width="8" height="10" rx="3" fill="#FEAC27"/>
+    <path d="M10 35 Q16 32 22 35" stroke="#FEAC27" stroke-width="2" fill="none"/>
+   </svg>`},
+  {id:"crunch",nombre:"Crunch abdominal",musculo:"Recto abdominal",grupo:"Core",series:4,reps:20,peso:0,
+   tip:"Sólo subí los hombros del piso. No jalés el cuello. Exhalá al subir, inhalá al bajar.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="26" cy="18" rx="7" ry="8" fill="#FEAC27"/>
+    <path d="M19 23 Q16 28 20 34 Q24 38 30 36 Q38 34 46 32 Q54 30 60 34" stroke="#2b3542" stroke-width="3" fill="none"/>
+    <path d="M60 34 Q66 36 68 44 Q68 50 64 52" stroke="#2b3542" stroke-width="2" fill="none"/>
+    <path d="M20 34 Q18 42 20 50 Q22 54 26 55" stroke="#2b3542" stroke-width="2" fill="none"/>
+    <path d="M26 55 Q34 56 40 54 Q44 52 46 48" stroke="#FEAC27" stroke-width="2" fill="none"/>
+    <path d="M46 48 Q50 44 52 50 Q54 56 60 58" stroke="#FEAC27" stroke-width="2" fill="none"/>
+   </svg>`},
+  {id:"russian_twist",nombre:"Russian twist",musculo:"Oblicuos",grupo:"Core",series:3,reps:20,peso:5,
+   tip:"Sentado con torso a 45°, girá de lado a lado. Con peso para mayor dificultad.",
+   svg:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="40" cy="18" rx="7" ry="8" fill="#FEAC27"/>
+    <path d="M33 23 Q28 28 28 34 Q28 42 34 44 L46 44 Q52 42 52 34 Q52 28 47 23" fill="#2b3542"/>
+    <path d="M34 44 Q30 50 32 58 Q34 62 40 62 Q46 62 48 58 Q50 50 46 44" fill="#2b3542"/>
+    <path d="M28 32 Q20 28 14 30" stroke="#FEAC27" stroke-width="2.5" fill="none"/>
+    <path d="M52 32 Q60 28 66 30" stroke="#2b3542" stroke-width="2.5" fill="none"/>
+    <circle cx="12" cy="30" r="4" fill="#2b3542"/>
+    <circle cx="68" cy="30" r="4" fill="#2b3542"/>
+   </svg>`}
+];
 
-                left.appendChild(checkbox);
-                left.appendChild(label);
+const GRUPOS = [...new Set(EJERCICIOS_LIB.map(e=>e.grupo))];
 
-                div.appendChild(left);
-                lista.appendChild(div);
-            });
-        }
+// ═══════════════════════════════════════════════════════
+// RUTINAS PREDEFINIDAS
+// ═══════════════════════════════════════════════════════
+const RUTINAS_BASE = {
+  "Pecho + Tríceps":    {desc:"Empuje horizontal",  ejs:["press_banca","aperturas","press_inclinado","fondos","press_frances","ext_triceps"]},
+  "Espalda + Bíceps":   {desc:"Tirón vertical y horizontal", ejs:["dominadas","remo_barra","jalon","curl_biceps","curl_martillo"]},
+  "Piernas":            {desc:"Cuádriceps, isquios y glúteos", ejs:["sentadilla","hip_thrust","curl_isquio","pantorrillas"]},
+  "Hombros + Trapecio": {desc:"Empuje vertical y elevaciones", ejs:["press_militar","elevaciones_lat","encogimientos"]},
+  "Core + Abdomen":     {desc:"Estabilización y fuerza central", ejs:["plancha","crunch","russian_twist"]}
+};
+const DIAS_RUTINA = {"Lunes":"Pecho + Tríceps","Martes":"Espalda + Bíceps","Miércoles":"Piernas","Jueves":"Hombros + Trapecio","Viernes":"Pecho + Tríceps","Sábado":"Core + Abdomen","Domingo":"Piernas"};
 
-        function agregarAlumno() {
-            const nombre = document.getElementById("nuevoNombre").value.trim();
-            if (!nombre) return;
-            const lista = document.getElementById("lista-asistencia");
-            const id = crearId(nombre);
+function getEj(id){return EJERCICIOS_LIB.find(e=>e.id===id)}
+function getRutinaEjs(rutObj){return (rutObj.ejs||[]).map(id=>getEj(id)).filter(Boolean)}
 
-            // Evitar duplicados por id
-            if (document.getElementById(id)) {
-                alert("El alumno ya existe en la lista.");
-                return;
-            }
+// ═══════════════════════════════════════════════════════
+// PERSISTENCIA
+// ═══════════════════════════════════════════════════════
+function getHist(){try{return JSON.parse(localStorage.getItem('gym_hist')||'[]')}catch(e){return[]}}
+function setHist(h){try{localStorage.setItem('gym_hist',JSON.stringify(h))}catch(e){}}
+function getCustomRutinas(){try{return JSON.parse(localStorage.getItem('gym_rutinas')||'[]')}catch(e){return[]}}
+function setCustomRutinas(r){try{localStorage.setItem('gym_rutinas',JSON.stringify(r))}catch(e){}}
 
-            const div = document.createElement("div");
-            div.className = "alumno";
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
 
-            const left = document.createElement("div");
-            left.className = "alumno-left";
+// ═══════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════
+function switchTab(name){
+  const names=['entrenar','historial','progreso','misrutinas','biblioteca'];
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',names[i]===name));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  if(name==='historial')  renderHistorial();
+  if(name==='progreso')   renderProgresoSel();
+  if(name==='misrutinas') renderMisRutinas();
+  if(name==='biblioteca') renderBiblioteca();
+}
 
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.id = id;
-            checkbox.className = "check";
+// ═══════════════════════════════════════════════════════
+// SELECTS RUTINA
+// ═══════════════════════════════════════════════════════
+function buildAllRutinas(){
+  const custom=getCustomRutinas();
+  const all={};
+  Object.entries(RUTINAS_BASE).forEach(([k,v])=>{all[k]={...v,custom:false}});
+  custom.forEach(r=>{all[r.nombre]={desc:r.desc,ejs:r.ejs,custom:true}});
+  return all;
+}
 
-            const label = document.createElement("label");
-            label.setAttribute("for", id);
-            label.textContent = nombre;
-            label.title = nombre;
+function initSelects(){
+  const all=buildAllRutinas();
+  const sel=document.getElementById('sel-rutina');
+  sel.innerHTML='';
+  Object.keys(all).forEach(k=>{
+    const o=document.createElement('option');o.value=k;o.textContent=k+(all[k].custom?' ★':'');sel.appendChild(o);
+  });
+  const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const diaHoy=dias[new Date().getDay()];
+  const selD=document.getElementById('sel-dia');
+  for(let o of selD.options) if(o.value===diaHoy){o.selected=true;break;}
+  cambiarDia();
+}
 
-            left.appendChild(checkbox);
-            left.appendChild(label);
-            div.appendChild(left);
-            lista.appendChild(div);
+function cambiarDia(){
+  const dia=document.getElementById('sel-dia').value;
+  const rut=DIAS_RUTINA[dia];
+  const sel=document.getElementById('sel-rutina');
+  for(let o of sel.options) if(o.value.startsWith(rut)){o.selected=true;break;}
+  cargarRutina();
+}
 
-            document.getElementById("nuevoNombre").value = "";
-            document.getElementById("nuevoNombre").focus();
-        }
+// ═══════════════════════════════════════════════════════
+// SESIÓN
+// ═══════════════════════════════════════════════════════
+let sesion={reps:{},pesos:{},checked:{},notas:{}};
+let ejsActuales=[];
 
-        async function generarPDF() {
-            const { jsPDF } = window.jspdf;
-            const fechaInput = document.getElementById("fecha");
-            const fecha = fechaInput.value;
-            const profesor = document.getElementById("profesor").value || "(sin seleccionar)";
-            const grupo = document.getElementById("grupo").value || "(sin grupo)";
+function cargarRutina(){
+  const nombre=document.getElementById('sel-rutina').value;
+  const all=buildAllRutinas();
+  const rut=all[nombre];
+  if(!rut) return;
+  document.getElementById('rutina-desc').textContent=rut.desc;
+  ejsActuales=getRutinaEjs(rut).map(e=>({...e}));
+  sesion={reps:{},pesos:{},checked:{},notas:{}};
+  ejsActuales.forEach((ej,ei)=>{
+    for(let s=0;s<ej.series;s++){
+      const k=`${ei}-${s}`;
+      sesion.reps[k]=ej.reps;sesion.pesos[k]=ej.peso;sesion.checked[k]=false;
+    }
+    sesion.notas[ei]='';
+  });
+  renderEjercicios();actualizarKPIs();
+}
 
-            if (!fecha) {
-                fechaInput.classList.add("date-alert");
-                alert("Por favor, seleccioná una fecha antes de generar el PDF.");
-                fechaInput.focus();
-                return;
-            } else {
-                fechaInput.classList.remove("date-alert");
-            }
+function renderEjercicios(){
+  const cont=document.getElementById('ejercicios-container');
+  cont.innerHTML='';
+  document.getElementById('kpi-sesion').style.display='block';
+  ejsActuales.forEach((ej,ei)=>cont.appendChild(buildEjCard(ej,ei)));
+}
 
-            const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-            const margin = 40;
-            let y = 40;
-            doc.setFontSize(16);
-            doc.text("Asistencia TDM Ferro", margin, y);
-            y += 22;
-            doc.setFontSize(11);
-            doc.text(`Grupo: ${grupo}`, margin, y); y += 16;
-            doc.text(`Fecha: ${fecha}`, margin, y); y += 16;
-            doc.text(`Profesor/a: ${profesor}`, margin, y); y += 22;
+function buildEjCard(ej,ei){
+  const done=countDone(ei,ej.series);
+  const pct=ej.series>0?Math.round(done/ej.series*100):0;
+  let seriesHTML='';
+  for(let s=0;s<ej.series;s++){
+    const k=`${ei}-${s}`;const chk=sesion.checked[k];const r=sesion.reps[k];const p=sesion.pesos[k];
+    seriesHTML+=`<div class="serie-box${chk?' done':''}" id="sbox-${k}">
+      <div class="serie-num">Serie ${s+1}</div><div class="serie-val">${r}</div>
+      <div class="serie-sub">${p>0?p+'kg':'Corp.'}</div>
+      <div class="serie-check${chk?' done-chk':''}" onclick="toggleCheck(${ei},${s})">${chk?'✓':''}</div>
+    </div>`;
+  }
+  const card=document.createElement('div');card.className='card-sm';card.id=`ej-card-${ei}`;
+  card.innerHTML=`
+    <div class="ej-img-wrap" onclick="abrirModalEj('${ej.id}')" title="Ver ilustración">${ej.svg}</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
+      <div style="flex:1;min-width:0;margin-right:8px">
+        <div style="font-size:14px;font-weight:600;color:var(--text)">${ej.nombre}</div>
+        <div style="font-size:11px;color:var(--text2)">${ej.musculo}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+        <span style="font-size:11px;background:var(--warn-bg);color:var(--warn-text);padding:3px 9px;border-radius:20px">${ej.series}×${ej.reps}</span>
+        <button class="btn btn-icon" onclick="toggleConfig(${ei})" style="font-size:13px">⚙️</button>
+      </div>
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%" id="prog-${ei}"></div></div>
+    <div class="series-grid" id="series-${ei}">${seriesHTML}</div>
+    <div id="config-${ei}" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+      <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Ajuste sesión</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+        <div><div style="font-size:11px;color:var(--text2);margin-bottom:3px">Series</div>
+          <input class="cfg-input" type="number" min="1" max="10" value="${ej.series}" id="inp-s-${ei}" onchange="ajustarConfig(${ei})"></div>
+        <div><div style="font-size:11px;color:var(--text2);margin-bottom:3px">Reps</div>
+          <input class="cfg-input" type="number" min="1" max="120" value="${ej.reps}" id="inp-r-${ei}" onchange="ajustarConfig(${ei})"></div>
+        <div><div style="font-size:11px;color:var(--text2);margin-bottom:3px">Peso (kg)</div>
+          <input class="cfg-input" type="number" min="0" max="500" step="2.5" value="${ej.peso}" id="inp-p-${ei}" onchange="ajustarConfig(${ei})"></div>
+      </div>
+      <div><div style="font-size:11px;color:var(--text2);margin-bottom:3px">Notas</div>
+        <textarea class="notes-input" id="inp-n-${ei}" placeholder="Ej: subí 2.5kg, sensación...">${sesion.notas[ei]||''}</textarea>
+      </div>
+    </div>`;
+  return card;
+}
 
-            doc.setFontSize(12);
-            doc.text("Presentes:", margin, y); y += 16;
+function countDone(ei,nS){let d=0;for(let s=0;s<nS;s++) if(sesion.checked[`${ei}-${s}`]) d++;return d;}
 
-            const alumnos = Array.from(document.querySelectorAll("#lista-asistencia .alumno"));
-            const presentes = [];
-            alumnos.forEach(al => {
-                const label = al.querySelector("label");
-                const check = al.querySelector("input[type='checkbox']");
-                if (check && check.checked) presentes.push(label.textContent);
-            });
+function toggleConfig(ei){
+  const c=document.getElementById(`config-${ei}`);
+  c.style.display=c.style.display==='none'?'block':'none';
+}
 
-            if (presentes.length === 0) {
-                doc.text("— Ningún alumno marcado como presente —", margin + 10, y);
-            } else {
-                const lineHeight = 14;
-                presentes.forEach((n, i) => {
-                    const lines = doc.splitTextToSize(`- ${n}`, 520);
-                    doc.text(lines, margin + 10, y);
-                    y += lines.length * lineHeight;
-                    if (y > 760) { doc.addPage(); y = 40; }
-                });
-            }
+function ajustarConfig(ei){
+  const ej=ejsActuales[ei];
+  const nS=Math.max(1,parseInt(document.getElementById(`inp-s-${ei}`).value)||ej.series);
+  const nR=Math.max(1,parseInt(document.getElementById(`inp-r-${ei}`).value)||ej.reps);
+  const nP=Math.max(0,parseFloat(document.getElementById(`inp-p-${ei}`).value)||0);
+  sesion.notas[ei]=document.getElementById(`inp-n-${ei}`).value;
+  const prevS=ej.series;ej.series=nS;ej.reps=nR;ej.peso=nP;
+  for(let s=0;s<Math.max(nS,prevS);s++){
+    const k=`${ei}-${s}`;
+    if(s<nS){if(sesion.reps[k]===undefined)sesion.reps[k]=nR;if(sesion.pesos[k]===undefined)sesion.pesos[k]=nP;if(sesion.checked[k]===undefined)sesion.checked[k]=false;}
+    else{delete sesion.reps[k];delete sesion.pesos[k];delete sesion.checked[k];}
+  }
+  let html='';
+  for(let s=0;s<nS;s++){
+    const k=`${ei}-${s}`;const chk=sesion.checked[k];const r=sesion.reps[k];const p=sesion.pesos[k];
+    html+=`<div class="serie-box${chk?' done':''}" id="sbox-${k}"><div class="serie-num">Serie ${s+1}</div><div class="serie-val">${r}</div><div class="serie-sub">${p>0?p+'kg':'Corp.'}</div><div class="serie-check${chk?' done-chk':''}" onclick="toggleCheck(${ei},${s})">${chk?'✓':''}</div></div>`;
+  }
+  document.getElementById(`series-${ei}`).innerHTML=html;
+  document.getElementById(`prog-${ei}`).style.width=Math.round(countDone(ei,nS)/nS*100)+'%';
+  document.querySelector(`#ej-card-${ei} span[style*="warn"]`).textContent=`${nS}×${nR}`;
+  actualizarKPIs();
+}
 
-            const nombreArchivo = `Asistencia_${grupo.replace(/\s+/g, '_')}_${fecha}.pdf`;
-            doc.save(nombreArchivo);
-        }
+function toggleCheck(ei,si){
+  const k=`${ei}-${si}`;sesion.checked[k]=!sesion.checked[k];
+  const chk=sesion.checked[k];
+  const box=document.getElementById(`sbox-${k}`);
+  box.className='serie-box'+(chk?' done':'');
+  const el=box.querySelector('.serie-check');
+  el.className='serie-check'+(chk?' done-chk':'');el.textContent=chk?'✓':'';
+  const ej=ejsActuales[ei];
+  document.getElementById(`prog-${ei}`).style.width=Math.round(countDone(ei,ej.series)/ej.series*100)+'%';
+  actualizarKPIs();
+}
 
-        function limpiar() {
-            document.getElementById("fecha").value = "";
-            document.getElementById("profesor").value = "";
-            document.getElementById("grupo").value = "";
-            document.getElementById("lista-asistencia").innerHTML = "";
-            document.getElementById("nuevoNombre").value = "";
-            document.getElementById("grupo-titulo").textContent = "";
-        }
+function actualizarKPIs(){
+  let s=0,r=0,v=0;
+  Object.entries(sesion.checked).forEach(([k,chk])=>{if(chk){s++;r+=sesion.reps[k]||0;v+=(sesion.reps[k]||0)*(sesion.pesos[k]||0);}});
+  document.getElementById('k-series').textContent=s;
+  document.getElementById('k-reps').textContent=r;
+  document.getElementById('k-vol').textContent=v;
+}
 
-        // Mejora UX: abrir picker al tocar cualquier parte del contenedor en móviles (complementario)
-        document.addEventListener('click', (e) => {
-            const dateWrap = document.querySelector('.date-wrap');
-            if (!dateWrap) return;
-            if (dateWrap.contains(e.target)) {
-                const input = document.getElementById('fecha');
-                // For touch devices, focusing helps open the native picker
-                input.focus();
-                // Some Android browsers require a click event on the input to open picker
-                try { input.click(); } catch (e) { }
-            }
-        });
+function guardarSesion(){
+  const nombre=document.getElementById('sel-rutina').value;
+  const dia=document.getElementById('sel-dia').value;
+  const series=[];
+  ejsActuales.forEach((ej,ei)=>{
+    for(let s=0;s<ej.series;s++){
+      const k=`${ei}-${s}`;
+      series.push({ej:ej.nombre,musculo:ej.musculo,serie:s+1,reps:sesion.reps[k]||ej.reps,peso:sesion.pesos[k]||ej.peso,done:sesion.checked[k]||false,notas:sesion.notas[ei]||''});
+    }
+  });
+  const total=series.filter(s=>s.done).length;
+  if(total===0){toast('⚠️ Completá al menos 1 serie para guardar');return;}
+  const hist=getHist();
+  hist.unshift({fecha:new Date().toISOString(),dia,rutina:nombre,series,vol:parseInt(document.getElementById('k-vol').textContent)||0,repsTotal:parseInt(document.getElementById('k-reps').textContent)||0,seriesDone:total});
+  setHist(hist);toast(`✅ Sesión guardada — ${total} series completadas`);
+}
 
-        // Accessibility: enable label click to toggle checkbox even if label shrinks
-        document.addEventListener('change', (e) => {
-            if (e.target && e.target.matches('#grupo')) {
-                cargarAlumnos();
-            }
-        });
+// ═══════════════════════════════════════════════════════
+// MODAL IMAGEN
+// ═══════════════════════════════════════════════════════
+function abrirModalEj(id){
+  const ej=getEj(id);if(!ej) return;
+  document.getElementById('modal-ej-img').innerHTML=ej.svg;
+  document.getElementById('modal-ej-nombre').textContent=ej.nombre;
+  document.getElementById('modal-ej-musc').textContent=ej.musculo;
+  document.getElementById('modal-ej-tip').textContent='💡 '+ej.tip;
+  document.getElementById('modal-ej').classList.add('open');
+}
+function cerrarModal(e){if(e.target===document.getElementById('modal-ej')) document.getElementById('modal-ej').classList.remove('open');}
 
-        function construirRegistro() {
-            const fecha = document.getElementById('fecha').value || '(sin fecha)';
-            const profesor = document.getElementById('profesor').value || '(sin profesor)';
-            const grupo = document.getElementById('grupo').value || '(sin grupo)';
-            const alumnos = Array.from(document.querySelectorAll('#lista-asistencia .alumno'))
-                .map(a => {
-                    const nombre = a.querySelector('label').textContent;
-                    const presente = !!a.querySelector('input[type="checkbox"]').checked;
-                    return { nombre, presente };
-                });
-            return { fecha, profesor, grupo, alumnos, creado: new Date().toISOString() };
-        }
+// ═══════════════════════════════════════════════════════
+// HISTORIAL
+// ═══════════════════════════════════════════════════════
+function renderHistorial(){
+  const hist=getHist();const cont=document.getElementById('historial-list');
+  if(!hist.length){cont.innerHTML='<div class="empty">Aún no tenés sesiones guardadas.<br>Completá tu primer entrenamiento y guardalo.</div>';return;}
+  cont.innerHTML=hist.map((s,i)=>{
+    const f=new Date(s.fecha);
+    const fStr=f.toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'});
+    const hStr=f.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="card-sm">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:14px;font-weight:600;color:var(--text)">${s.rutina}</div>
+        <button class="btn btn-icon btn-danger" onclick="borrarSesion(${i})" style="width:26px;height:26px;font-size:12px">✕</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+        <span style="font-size:12px;color:var(--text2)">${fStr} ${hStr}</span>
+        <span class="chip">${s.dia}</span><span class="chip">${s.seriesDone} series</span><span class="chip">${s.vol}kg vol.</span>
+      </div>
+      <button class="btn btn-sm" onclick="toggleHistDetalle(${i})" style="width:100%;text-align:center;font-size:12px" id="btn-det-${i}">Ver detalle ▼</button>
+      <div id="hist-det-${i}" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+        ${s.series.filter(sr=>sr.done).map(sr=>`<div class="hist-item"><div><div style="font-size:13px;font-weight:500;color:var(--text)">${sr.ej}</div><div style="font-size:11px;color:var(--text2)">${sr.musculo} — Serie ${sr.serie}</div></div><div style="font-size:12px;color:var(--text2);text-align:right">${sr.reps} reps × ${sr.peso>0?sr.peso+'kg':'corporal'}</div></div>`).join('')}
+        ${s.series.find(sr=>sr.notas)?`<div style="margin-top:8px;padding:8px;background:var(--bg2);border-radius:7px;font-size:12px;color:var(--text2);font-style:italic">"${s.series.find(sr=>sr.notas).notas}"</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleHistDetalle(i){
+  const d=document.getElementById(`hist-det-${i}`);const b=document.getElementById(`btn-det-${i}`);
+  const open=d.style.display==='block';d.style.display=open?'none':'block';b.textContent=open?'Ver detalle ▼':'Ocultar ▲';
+}
+function borrarSesion(i){if(!confirm('¿Eliminar esta sesión?'))return;const h=getHist();h.splice(i,1);setHist(h);renderHistorial();toast('Sesión eliminada');}
+function borrarTodoHistorial(){if(confirm('¿Borrar todo el historial?')){setHist([]);renderHistorial();toast('Historial borrado');}}
 
-        function formatearTextoParaCopiar(registro) {
-            const { fecha, profesor, grupo, alumnos } = registro;
-            const presentes = alumnos.filter(a => a.presente).map(a => a.nombre);
-            const lineas = [];
+// ═══════════════════════════════════════════════════════
+// PROGRESO
+// ═══════════════════════════════════════════════════════
+function renderProgresoSel(){
+  const hist=getHist();const ejs=new Set();
+  hist.forEach(s=>s.series.forEach(sr=>{if(sr.done)ejs.add(sr.ej);}));
+  const sel=document.getElementById('sel-ej-prog');
+  sel.innerHTML='<option value="">— Seleccionar ejercicio —</option>';
+  [...ejs].sort().forEach(ej=>{const o=document.createElement('option');o.value=ej;o.textContent=ej;sel.appendChild(o);});
+  if(!ejs.size) document.getElementById('progreso-content').innerHTML='<div class="empty">Guardá sesiones para ver tu progreso aquí.</div>';
+  else mostrarProgreso();
+}
+function mostrarProgreso(){
+  const ej=document.getElementById('sel-ej-prog').value;const cont=document.getElementById('progreso-content');
+  if(!ej){cont.innerHTML='';return;}
+  const hist=getHist();const puntos=[];
+  hist.slice().reverse().forEach(s=>{
+    const fStr=new Date(s.fecha).toLocaleDateString('es-AR',{day:'2-digit',month:'short'});
+    s.series.filter(sr=>sr.ej===ej&&sr.done).forEach(sr=>{puntos.push({fecha:fStr,reps:sr.reps,peso:sr.peso,serie:sr.serie,vol:sr.reps*sr.peso});});
+  });
+  if(!puntos.length){cont.innerHTML='<div class="empty">Sin registros para este ejercicio.</div>';return;}
+  const maxVol=Math.max(...puntos.map(p=>p.vol))||1;
+  const ult=puntos[puntos.length-1];const pri=puntos[0];const mejora=ult.peso-pri.peso;
+  cont.innerHTML=`
+    <div class="kpi-row" style="margin-bottom:12px">
+      <div class="kpi-box"><div class="kpi-val">${ult.peso>0?ult.peso+'kg':'—'}</div><div class="kpi-lbl">Último peso</div></div>
+      <div class="kpi-box"><div class="kpi-val">${ult.reps}</div><div class="kpi-lbl">Últimas reps</div></div>
+      <div class="kpi-box"><div class="kpi-val" style="color:${mejora>=0?'#34d399':'#f87171'}">${mejora>=0?'+':''}${mejora}kg</div><div class="kpi-lbl">Progreso</div></div>
+    </div>
+    <div class="card-sm">
+      <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Volumen (reps × kg)</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        ${puntos.slice(-20).map(p=>{const pct=Math.round(p.vol/maxVol*100);return `<div style="display:flex;align-items:center;gap:8px"><div style="font-size:11px;color:var(--text2);width:58px;flex-shrink:0">${p.fecha} S${p.serie}</div><div style="flex:1;height:8px;background:var(--bg2);border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--y);border-radius:4px;transition:width .4s"></div></div><div style="font-size:11px;color:var(--text2);width:80px;text-align:right;flex-shrink:0">${p.reps}r × ${p.peso>0?p.peso+'kg':'corp.'}</div></div>`;}).join('')}
+      </div>
+    </div>`;
+}
 
-            // ✅ Formatear fecha de yyyy-mm-dd a dd-mm-aa
-            let fechaFormateada = fecha;
-            if (fecha && /^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
-                const [yyyy, mm, dd] = fecha.split('-');
-                fechaFormateada = `${dd}/${mm}/${yyyy}`;
-            }
-            
-            lineas.push('Asistencia TDM Ferro');
-            lineas.push(`Grupo: ${grupo}`);
-            lineas.push(`Fecha: ${fechaFormateada}`);
-            lineas.push(`Profesor/a: ${profesor}`);
-            lineas.push('');
-            lineas.push('Presentes:');
-            if (presentes.length === 0) {
-                lineas.push('— Ningún alumno marcado como presente —');
-            } else {
-                presentes.forEach((n, i) => lineas.push(`${i + 1}. ${n}`));
-            }
-            lineas.push('');
-            lineas.push(`Exportado: ${new Date().toLocaleString()}`);
-            return lineas.join('\n');
-        }
+// ═══════════════════════════════════════════════════════
+// CONSTRUCTOR DE RUTINAS
+// ═══════════════════════════════════════════════════════
+let ejsSeleccionados=[];
+let filtroActivo='Todos';
+let editandoIdx=-1;
 
-        function copiarAlPortapapeles() {
-            const registro = construirRegistro();
-            const texto = formatearTextoParaCopiar(registro);
+function renderMisRutinas(){
+  const custom=getCustomRutinas();
+  const cont=document.getElementById('mis-rutinas-list');
+  if(!custom.length){
+    cont.innerHTML='<div class="empty">Todavía no creaste rutinas personalizadas.<br>Tocá "+ Nueva rutina" para empezar.</div>';
+  } else {
+    cont.innerHTML=`<div class="rutinas-custom-list">`+custom.map((r,i)=>`
+      <div class="rut-item">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${r.nombre}</div>
+          <div style="font-size:11px;color:var(--text2)">${r.desc} · ${r.ejs.length} ejercicios</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="editarRutina(${i})">Editar</button>
+          <button class="btn btn-sm btn-danger" onclick="borrarRutina(${i})">✕</button>
+        </div>
+      </div>`).join('')+`</div>`;
+  }
+}
 
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(texto)
-                    .then(() => alert('✅ Contenido copiado al portapapeles'))
-                    .catch(err => {
-                        console.error(err);
-                        fallbackCopy(texto);
-                    });
-            } else {
-                fallbackCopy(texto);
-            }
-        }
+function abrirConstructor(idx=-1){
+  editandoIdx=idx;ejsSeleccionados=[];
+  const custom=getCustomRutinas();
+  document.getElementById('constructor-titulo').textContent=idx>=0?'Editar rutina':'Nueva rutina';
+  document.getElementById('inp-rut-nombre').value=idx>=0?custom[idx].nombre:'';
+  document.getElementById('inp-rut-desc').value=idx>=0?custom[idx].desc:'';
+  if(idx>=0) ejsSeleccionados=[...custom[idx].ejs];
+  document.getElementById('constructor').style.display='block';
+  document.getElementById('mis-rutinas-list').style.display='none';
+  document.querySelector('#view-misrutinas > div:first-child').style.display='none';
+  renderFiltrosConstructor();renderEjLibGrid();renderEjsSeleccionados();
+}
 
-        function fallbackCopy(text) {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position = 'fixed';
-            ta.style.left = '-9999px';
-            document.body.appendChild(ta);
-            ta.select();
-            try {
-                const ok = document.execCommand('copy');
-                alert(ok ? '✅ Contenido copiado al portapapeles' : '❌ No se pudo copiar automáticamente, seleccioná y copiá manualmente');
-            } catch (e) {
-                alert('❌ No se pudo copiar automáticamente, seleccioná y copiá manualmente');
-            }
-            ta.remove();
-        }
+function editarRutina(i){abrirConstructor(i);}
+function borrarRutina(i){
+  if(!confirm('¿Eliminar esta rutina?'))return;
+  const r=getCustomRutinas();r.splice(i,1);setCustomRutinas(r);initSelects();renderMisRutinas();toast('Rutina eliminada');
+}
 
-        const toggle = document.getElementById('toggleDark');
-        const root = document.documentElement; // <html>
+function cerrarConstructor(){
+  document.getElementById('constructor').style.display='none';
+  document.getElementById('mis-rutinas-list').style.display='block';
+  document.querySelector('#view-misrutinas > div:first-child').style.display='flex';
+}
 
-        function applyDark(isDark) {
-            if (isDark) {
-                root.classList.add('dark');
-                toggle.setAttribute('aria-pressed', 'true');
-                toggle.textContent = '☀️';
-            } else {
-                root.classList.remove('dark');
-                toggle.setAttribute('aria-pressed', 'false');
-                toggle.textContent = '🌙';
-            }
-            localStorage.setItem('tdm-dark', isDark ? '1' : '0');
-        }
+function renderFiltrosConstructor(){
+  const cont=document.getElementById('filter-chips-constructor');
+  cont.innerHTML=['Todos',...GRUPOS].map(g=>`<button class="fchip${filtroActivo===g?' active':''}" onclick="filtrarGrupoConst('${g}')">${g}</button>`).join('');
+}
 
-        // inicializar según preferencia guardada o preferencia del sistema
-        const saved = localStorage.getItem('tdm-dark');
-        if (saved !== null) {
-            applyDark(saved === '1');
-        } else {
-            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            applyDark(prefersDark);
-        }
+function filtrarGrupoConst(g){filtroActivo=g;renderFiltrosConstructor();renderEjLibGrid();}
 
-        toggle.addEventListener('click', () => applyDark(!root.classList.contains('dark')));
+function renderEjLibGrid(){
+  const grid=document.getElementById('ej-lib-grid');
+  const lista=filtroActivo==='Todos'?EJERCICIOS_LIB:EJERCICIOS_LIB.filter(e=>e.grupo===filtroActivo);
+  grid.innerHTML=lista.map(ej=>{
+    const sel=ejsSeleccionados.includes(ej.id);
+    return `<div class="ej-lib-item${sel?' selected':''}" onclick="toggleEjSel('${ej.id}')">
+      <div class="ej-lib-thumb">${ej.svg}</div>
+      <div><div class="ej-lib-name">${ej.nombre}</div><div class="ej-lib-musc">${ej.musculo}</div></div>
+    </div>`;
+  }).join('');
+}
 
-    </script>
+function toggleEjSel(id){
+  const idx=ejsSeleccionados.indexOf(id);
+  if(idx>=0) ejsSeleccionados.splice(idx,1); else ejsSeleccionados.push(id);
+  renderEjLibGrid();renderEjsSeleccionados();
+}
+
+function renderEjsSeleccionados(){
+  const wrap=document.getElementById('ej-seleccionados-wrap');
+  const cont=document.getElementById('ej-seleccionados-list');
+  if(!ejsSeleccionados.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  cont.innerHTML=ejsSeleccionados.map((id,i)=>{
+    const ej=getEj(id);if(!ej)return'';
+    return `<div class="ej-sel-item">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:28px;height:28px;background:var(--bg2);border-radius:5px;overflow:hidden;display:flex;align-items:center;justify-content:center">${ej.svg}</div>
+        <div><div style="font-size:13px;font-weight:500;color:var(--text)">${ej.nombre}</div><div style="font-size:11px;color:var(--text2)">${ej.musculo}</div></div>
+      </div>
+      <button class="btn btn-icon btn-danger" onclick="quitarEjSel(${i})" style="width:26px;height:26px;font-size:11px">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function quitarEjSel(i){ejsSeleccionados.splice(i,1);renderEjLibGrid();renderEjsSeleccionados();}
+
+function guardarRutinaCustom(){
+  const nombre=document.getElementById('inp-rut-nombre').value.trim();
+  const desc=document.getElementById('inp-rut-desc').value.trim();
+  if(!nombre){toast('⚠️ Escribí un nombre para la rutina');return;}
+  if(!ejsSeleccionados.length){toast('⚠️ Seleccioná al menos un ejercicio');return;}
+  const custom=getCustomRutinas();
+  const nueva={nombre,desc:desc||'Rutina personalizada',ejs:[...ejsSeleccionados]};
+  if(editandoIdx>=0) custom[editandoIdx]=nueva; else custom.push(nueva);
+  setCustomRutinas(custom);initSelects();cerrarConstructor();renderMisRutinas();
+  toast(`✅ Rutina "${nombre}" guardada`);
+}
+
+// ═══════════════════════════════════════════════════════
+// BIBLIOTECA
+// ═══════════════════════════════════════════════════════
+let filtroBib='Todos';
+function renderBiblioteca(){
+  const fc=document.getElementById('filter-chips-bib');
+  fc.innerHTML=['Todos',...GRUPOS].map(g=>`<button class="fchip${filtroBib===g?' active':''}" onclick="filtrarBib('${g}')">${g}</button>`).join('');
+  renderBibGrid();
+}
+function filtrarBib(g){filtroBib=g;renderBiblioteca();}
+function renderBibGrid(){
+  const lista=filtroBib==='Todos'?EJERCICIOS_LIB:EJERCICIOS_LIB.filter(e=>e.grupo===filtroBib);
+  const grid=document.getElementById('bib-grid');
+  grid.innerHTML=lista.map(ej=>`
+    <div class="card-sm" style="cursor:pointer" onclick="abrirModalEj('${ej.id}')">
+      <div style="background:var(--bg2);border-radius:8px;display:flex;align-items:center;justify-content:center;height:80px;margin-bottom:8px;overflow:hidden">${ej.svg}</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.3">${ej.nombre}</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:2px">${ej.musculo}</div>
+      <div style="font-size:10px;color:var(--text2);margin-top:4px;opacity:.7">${ej.series}×${ej.reps}${ej.peso>0?' · '+ej.peso+'kg':' · Corporal'}</div>
+    </div>`).join('');
+}
+
+// INIT
+initSelects();
+</script>
 </body>
-
 </html>
